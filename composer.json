@@ -1,0 +1,28 @@
+{
+	"name": "hikashop-nicolas/hikashop-storelinkr",
+	"description": "HikaShop StoreLinkr Connector, for Joomla and WordPress",
+	"license": "GPL-2.0-or-later",
+	"type": "project",
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"wp-coding-standards/wpcs": "^3.4",
+		"phpcompatibility/phpcompatibility-wp": "^2.1"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"build": "php build/build.php",
+		"check": "php build/check-structure.php",
+		"wp-check": [
+			"php build/build.php",
+			"rm -rf dist/wp && mkdir -p dist/wp && cd dist/wp && unzip -q ../hikashop-storelinkr.zip",
+			"phpcs --standard=build/plugin-check.xml --extensions=php -s dist/wp/hikashop-storelinkr"
+		],
+		"php-compat": "phpcs --standard=PHPCompatibilityWP --runtime-set testVersion 7.4- --extensions=php core joomla wordpress"
+	}
+}

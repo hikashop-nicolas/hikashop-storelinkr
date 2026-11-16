@@ -1,0 +1,34 @@
+# A tag v<x.y.z> equal to VERSION builds both packages and publishes them as a
+# GitHub release, with the Joomla update file sites read through
+# releases/latest/download/plg_system_storelinkr.xml.
+name: Release
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+      - name: The tag is the version
+        run: test "v$(cat VERSION)" = "${GITHUB_REF_NAME}"
+      - name: Check and build
+        run: |
+          php build/check-structure.php
+          composer install --no-interaction --no-progress
+          composer run-script wp-check
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes=$(awk -v v="$(cat VERSION)" '$0=="= " v " =" {f=1; next} /^= / {f=0} f' wordpress/readme.txt)
+          gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --notes "${notes:-HikaShop StoreLinkr Connector $(cat VERSION)}" \
+            dist/plg_system_storelinkr.zip dist/hikashop-storelinkr.zip dist/plg_system_storelinkr.xml dist/SHA256SUMS

@@ -34,6 +34,6 @@
 		</fields>
 	</config>
 	<updateservers>
-		<server type="extension" name="HikaShop StoreLinkr Connector">https://raw.githubusercontent.com/hikashop-nicolas/hikashop-storelinkr/main/updates/plg_system_storelinkr.xml</server>
+		<server type="extension" name="HikaShop StoreLinkr Connector">https://github.com/hikashop-nicolas/hikashop-storelinkr/releases/latest/download/plg_system_storelinkr.xml</server>
 	</updateservers>
 </extension>

@@ -1,0 +1,28 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.3', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+      - name: Structure (core, Joomla and WordPress kept apart, every file parses)
+        run: php build/check-structure.php
+      - name: Build both packages
+        run: php build/build.php
+      - name: Plugin Check's code rules on the WordPress package, PHP 7.4+ compatibility
+        if: matrix.php == '8.3'
+        run: |
+          composer install --no-interaction --no-progress
+          composer run-script wp-check
+          composer run-script php-compat

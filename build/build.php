@@ -3,7 +3,8 @@
  * Builds the two packages from one source:
  *   dist/plg_system_storelinkr.zip   the Joomla plugin (joomla/ + core/)
  *   dist/hikashop-storelinkr.zip     the WordPress plugin (wordpress/ + core/)
- * and updates/plg_system_storelinkr.xml, the Joomla update file.
+ *   dist/plg_system_storelinkr.xml   the Joomla update file, published with the release
+ *   dist/SHA256SUMS
  *
  * Each PHP file gets the direct-access guard of its platform after its
  * namespace and use lines, where JEDChecker and Plugin Check look for it.
@@ -145,5 +146,10 @@ $xml = <<<XML
 </updates>
 
 XML;
-file_put_contents($root . '/updates/plg_system_storelinkr.xml', str_replace('%SHA%', hash_file('sha256', $root . '/dist/plg_system_storelinkr.zip'), $xml));
-echo "updates/plg_system_storelinkr.xml: $version\n";
+file_put_contents($root . '/dist/plg_system_storelinkr.xml', str_replace('%SHA%', hash_file('sha256', $root . '/dist/plg_system_storelinkr.zip'), $xml));
+$sums = '';
+foreach (array('plg_system_storelinkr.zip', 'hikashop-storelinkr.zip', 'plg_system_storelinkr.xml') as $f) {
+	$sums .= hash_file('sha256', $root . '/dist/' . $f) . '  ' . $f . "\n";
+}
+file_put_contents($root . '/dist/SHA256SUMS', $sums);
+echo "dist/plg_system_storelinkr.xml: $version\n";
