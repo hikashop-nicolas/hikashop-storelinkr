@@ -53,7 +53,7 @@ class CategoryService extends Service {
 	public function create($name, $parentId, $source = null) {
 		$name = trim((string)$name);
 		if($name === '') {
-			throw ApiError::because('Category name is required');
+			ApiError::raise('Category name is required');
 		}
 		$parent = $this->resolveParentId($parentId);
 
@@ -70,7 +70,7 @@ class CategoryService extends Service {
 		$category->category_published = 1;
 		$id = $categoryClass->save($category);
 		if(!$id) {
-			throw ApiError::because('Could not create category: ' . $name);
+			ApiError::raise('Could not create category: ' . $name);
 		}
 		return $this->toResponse((int)$id);
 	}
@@ -79,7 +79,7 @@ class CategoryService extends Service {
 		$categoryClass = hikashop_get('class.category');
 		$category = $categoryClass->get((int)$id);
 		if(empty($category) || empty($category->category_id)) {
-			throw ApiError::because('Invalid category!');
+			ApiError::raise('Invalid category!');
 		}
 		$update = new \stdClass();
 		$update->category_id = (int)$id;
@@ -91,7 +91,7 @@ class CategoryService extends Service {
 		}
 		$status = $categoryClass->save($update);
 		if(!$status) {
-			throw ApiError::because('Could not update category ' . (int)$id);
+			ApiError::raise('Could not update category ' . (int)$id);
 		}
 		return true;
 	}

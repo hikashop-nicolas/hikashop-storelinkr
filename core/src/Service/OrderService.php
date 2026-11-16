@@ -125,7 +125,7 @@ class OrderService extends Service {
 		$orderClass = hikashop_get('class.order');
 		$orderId = (int) $orderClass->save($order);
 		if(!$orderId) {
-			throw ApiError::because('Could not create the order');
+			ApiError::raise('Could not create the order');
 		}
 
 		if(!empty($data['items']) && is_array($data['items'])) {

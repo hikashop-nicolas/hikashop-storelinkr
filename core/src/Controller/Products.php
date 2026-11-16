@@ -58,7 +58,7 @@ class Products extends Controller {
 		$productId = (int) $this->request->get('id');
 		$product = $service->findById($productId);
 		if(!$product) {
-			throw ApiError::because('Product not found with id ' . $productId);
+			ApiError::raise('Product not found with id ' . $productId);
 		}
 
 		$imageService = $this->service('ImageService');
@@ -104,7 +104,7 @@ class Products extends Controller {
 
 	public function offline() {
 		if(!$this->request->has('gtins') && !$this->request->has('product_ids')) {
-			throw ApiError::because('At least one of gtins or product_ids field is required');
+			ApiError::raise('At least one of gtins or product_ids field is required');
 		}
 		$gtins = (array) $this->request->get('gtins', array());
 		$productIds = (array) $this->request->get('product_ids', array());
@@ -119,7 +119,7 @@ class Products extends Controller {
 		$this->request->requireFields(array('products'));
 		$products = $this->request->get('products');
 		if(!is_array($products)) {
-			throw ApiError::because('Products is not an array!');
+			ApiError::raise('Products is not an array!');
 		}
 		$settings = $this->settings();
 		$publishNew = $this->publishNew($settings);

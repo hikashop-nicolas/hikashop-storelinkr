@@ -17,7 +17,7 @@ class StockLocationService extends Service {
 	public function create(array $data) {
 		$name = isset($data['name']) ? trim((string)$data['name']) : '';
 		if($name === '') {
-			throw ApiError::because('Stock location name is required');
+			ApiError::raise('Stock location name is required');
 		}
 		$row = new \stdClass();
 		$row->warehouse_name = $name;
@@ -29,7 +29,7 @@ class StockLocationService extends Service {
 		$db->insertObject(hikashop_table('warehouse'), $row, 'warehouse_id');
 		$id = (int) $db->insertid();
 		if(!$id) {
-			throw ApiError::because('Stock location could not be saved!');
+			ApiError::raise('Stock location could not be saved!');
 		}
 		return $id;
 	}

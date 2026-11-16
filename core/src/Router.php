@@ -65,6 +65,6 @@ class Router {
 			$handler = new $class($request, $platform);
 			return $handler->$action();
 		}
-		throw ApiError::because('No route for ' . $request->method . ' ' . $request->path, 404);
+		ApiError::raise('No route for ' . $request->method . ' ' . $request->path, 404);
 	}
 }

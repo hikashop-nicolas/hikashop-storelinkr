@@ -12,6 +12,16 @@ final class ApiError extends \RuntimeException {
 		return new self((string) $message, (int) $status);
 	}
 
+	/**
+	 * Stop the request with an error for StoreLinkr. Its message goes to the
+	 * JSON body only, never to a page, which is why it is built here and thrown
+	 * as a whole.
+	 */
+	public static function raise($message, $status = 400) {
+		$error = self::because($message, $status);
+		throw $error;
+	}
+
 	/** Missing or wrong credentials: answered as the WooCommerce connector does. */
 	public static function unauthorized() {
 		return new self('UNAUTHORIZED', 401);

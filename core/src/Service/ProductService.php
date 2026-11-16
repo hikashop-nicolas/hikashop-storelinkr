@@ -283,7 +283,7 @@ class ProductService extends Service {
 		$status = $productClass->save($element, false, true);
 		if(!$status) {
 			$error = method_exists($productClass, 'getError') ? $productClass->getError() : '';
-			throw ApiError::because('Could not save product' . ($error ? ': ' . $error : ''));
+			ApiError::raise('Could not save product' . ($error ? ': ' . $error : ''));
 		}
 		$pid = (int) $status;
 

@@ -51,7 +51,7 @@ class Request {
 	public function requireFields(array $fields) {
 		foreach ($fields as $field) {
 			if (! $this->has($field)) {
-				throw ApiError::because('Missing data field: ' . $field);
+				ApiError::raise('Missing data field: ' . $field);
 			}
 		}
 	}

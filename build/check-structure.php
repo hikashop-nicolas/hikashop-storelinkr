@@ -38,8 +38,8 @@ foreach (php_files("$root/core") as $file) {
 	if (preg_match('/\b(exit|die)\b/', $body)) {
 		$fail($rel, 'the core exits: return or throw ApiError, the platform answers');
 	}
-	if (preg_match('/throw\s+new\b/', $body)) {
-		$fail($rel, 'throw ApiError::because(), not new: Plugin Check reads every new exception as output');
+	if (preg_match('/throw\s+(new\b|ApiError::because)/', $body)) {
+		$fail($rel, 'call ApiError::raise(): Plugin Check reads the arguments of a throw as output');
 	}
 }
 foreach (php_files("$root/wordpress") as $file) {

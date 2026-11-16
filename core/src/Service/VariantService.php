@@ -123,7 +123,7 @@ class VariantService extends Service {
 		$isNewMain = empty($main->product_id);
 		$mainId = (int) $productClass->save($main, false, true);
 		if(!$mainId) {
-			throw ApiError::because('Could not save the variable product');
+			ApiError::raise('Could not save the variable product');
 		}
 		if(isset($main->categories)) {
 			$productClass->updateCategories($main, $mainId);
