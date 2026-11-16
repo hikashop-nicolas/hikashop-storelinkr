@@ -129,6 +129,9 @@ class Products extends Controller {
 		foreach($products as $uuid => $raw) {
 			$raw = (array) $raw;
 			$raw['settings'] = $settings;
+			if(empty($raw['uuid']) && is_string($uuid)) {
+				$raw['uuid'] = $uuid;
+			}
 			try {
 				$productId = $service->createOrUpdate($raw, $settings, $publishNew);
 				$product = $service->findById($productId);

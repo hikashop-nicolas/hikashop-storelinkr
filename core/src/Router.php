@@ -23,6 +23,8 @@ class Router {
 			array( 'POST', '#^products/create-variant$#', 'Variants', 'create' ),
 			array( 'POST', '#^products/link-variants$#', 'Variants', 'link' ),
 			array( 'POST', '#^products/upsert-bulk$#', 'Products', 'upsertBulk' ),
+			// What StoreLinkr's HikaShop integration calls for a product export: upsert-bulk's input and answer.
+			array( 'POST', '#^products/bulk$#', 'Products', 'upsertBulk' ),
 			array( 'POST', '#^products/offline$#', 'Products', 'offline' ),
 			array( 'POST', '#^products/archive/validate$#', 'Products', 'archiveValidate' ),
 			array( 'POST', '#^products/(\d+)/update-variant$#', 'Variants', 'update' ),

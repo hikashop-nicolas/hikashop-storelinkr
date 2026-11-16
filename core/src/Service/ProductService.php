@@ -72,7 +72,10 @@ class ProductService extends Service {
 	public function match(array $data) {
 		if(!empty($data['id'])) {
 			$p = $this->findById($data['id']);
-			if($p) return $p;
+			if($p && $this->isTheProductSent($p, $data)) return $p;
+			if($p) {
+				$this->logWarning('Product id ' . (int)$data['id'] . ' is another product in this shop: matched by SKU or EAN instead');
+			}
 		}
 		if(!empty($data['sku'])) {
 			$p = $this->findBySku($data['sku']);
@@ -83,6 +86,27 @@ class ProductService extends Service {
 			if($p) return $p;
 		}
 		return null;
+	}
+
+	/**
+	 * Whether the product an id names is the one StoreLinkr sends: an id from another
+	 * shop (a site moved, a database restored) can name any product here. Its StoreLinkr
+	 * uuid decides; a product StoreLinkr never touched must have the same SKU or EAN.
+	 */
+	private function isTheProductSent($product, array $data) {
+		$uuid = isset($product->{Schema::COL_UUID}) ? (string)$product->{Schema::COL_UUID} : '';
+		if($uuid !== '' && !empty($data['uuid'])) {
+			return $uuid === (string)$data['uuid'];
+		}
+		if(!empty($data['sku']) && (string)$product->product_code === trim((string)$data['sku'])) {
+			return true;
+		}
+		$ean = isset($product->{Schema::COL_EAN}) ? (string)$product->{Schema::COL_EAN} : '';
+		if($ean !== '' && !empty($data['ean']) && $ean === trim((string)$data['ean'])) {
+			return true;
+		}
+		// No uuid sent and nothing to compare: as StoreLinkr's own connectors, trust the id.
+		return empty($data['uuid']) && empty($data['sku']) && empty($data['ean']);
 	}
 
 	// ── Create / update ──────────────────────────────────────────────────

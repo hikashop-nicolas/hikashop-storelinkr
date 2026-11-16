@@ -203,5 +203,19 @@ $variable['products'][0]['images'] = array($img2);
 list($s, $j, $raw) = call('POST', "products/$vid/update-variant", $variable);
 ok('a variant gets its own image', $s === 200 && count($j['variant_map']) === 3, $raw);
 
+echo "products/bulk (StoreLinkr's HikaShop integration)\n";
+$sent = array('uuid' => "u-$run", 'ean' => '877' . str_pad($run, 10, '0', STR_PAD_LEFT), 'sku' => "DIY-$run", 'name' => "DIY blanket $run",
+	'importSource' => 'STORELINKR', 'brand' => 'DIY', 'currency' => 'EUR', 'advisedPrice' => null, 'salesPrice' => 2495, 'promoSalesPrice' => null,
+	'images' => array(), 'isUsed' => false, 'longDescription' => '', 'metadata' => '[]', 'inStock' => 0, 'stockSupplier' => 0, 'hasStock' => false,
+	'updateStock' => true, 'id' => (string) $pid, 'site' => 'x', 'categoryId' => null,
+	'category_path' => array('main' => "Home $run", 'sub' => 'Blankets', 'subSub' => null, 'subSubSub' => null, 'subSubSubSub' => null),
+	'updatePrice' => true, 'is_variant' => false, 'variants' => array());
+list($s, $j, $raw) = call('POST', 'products/bulk', array('settings' => array('publish_new_products' => true), 'products' => array("u-$run" => $sent)));
+$bulk = isset($j['products']["u-$run"]['product_id']) ? (int) $j['products']["u-$run"]['product_id'] : 0;
+ok('a product sent to products/bulk is created', $s === 200 && $bulk > 0, $raw);
+ok('an id naming another product of the shop is not taken over', $bulk !== $pid && !empty($j['warnings']), $raw);
+list($s, $j, $raw) = call('POST', 'products/bulk', array('products' => array("u-$run" => array_merge($sent, array('id' => (string) $bulk, 'salesPrice' => 2595)))));
+ok('sent again with its own id, it is updated', isset($j['products']["u-$run"]['product_id']) && (int) $j['products']["u-$run"]['product_id'] === $bulk, $raw);
+
 echo "\n$passed passed, $failed failed\n";
 exit($failed ? 1 : 0);
