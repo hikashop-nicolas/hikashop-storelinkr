@@ -1,0 +1,38 @@
+<div class="hikashop_product_content">
+<div id="product_features">
+	<p><b>HikaShop StoreLinkr Connector</b> is a free extension, for Joomla and for WordPress, which connects your HikaShop shop to <a href="https://storelinkr.com" target="_blank" rel="noopener">StoreLinkr</a>, the platform where you manage your product information and your sales channels. StoreLinkr sends your catalogue to the shop and keeps it up to date, reads the shop's orders, and creates the orders of your other channels in it.</p>
+
+	<span class="blue_title">Features</span>
+	<ul>
+		<li>Products created and updated by StoreLinkr, matched by id, product code or EAN so nothing is duplicated.</li>
+		<li>Products with variants (sizes, colours and so on) become HikaShop products with characteristics, one variant each.</li>
+		<li>Categories up to five levels deep, and brands as manufacturers.</li>
+		<li>Prices and stock kept up to date.</li>
+		<li>Images downloaded from StoreLinkr or sent as files, in the order StoreLinkr gives them; a missing main image is sent again rather than replaced by the next one.</li>
+		<li>The condition of second-hand products, and StoreLinkr's metafields, stored with the product and written to your product custom fields of the same name.</li>
+		<li>StoreLinkr reads your orders, and creates the orders of your marketplaces and other channels in HikaShop.</li>
+		<li>Stock locations become HikaShop warehouses.</li>
+		<li>A product StoreLinkr takes offline is unpublished, and comes back when StoreLinkr sends it again; one you unpublish yourself stays unpublished.</li>
+		<li>StoreLinkr only gets in with the API key and secret of the settings. Images are only downloaded from public addresses, optionally from the hosts you allow.</li>
+		<li>The same connector on Joomla and on WordPress, answering StoreLinkr exactly as its WooCommerce connector does, so StoreLinkr's HikaShop integration works with it as it is.</li>
+		<li>Free and open source (GPL), on <a href="https://github.com/hikashop-nicolas/hikashop-storelinkr" target="_blank" rel="noopener">GitHub</a>.</li>
+	</ul>
+
+	<span class="blue_title">Preview</span>
+	<a href="/images/marketplace/storelinkr_joomla.jpg" rel="shadowbox[hikashop]"><img src="/images/marketplace/storelinkr_joomla.jpg" alt="The connector's settings on Joomla: the API key and secret StoreLinkr sends, and how what it sends is imported" style="max-width:100%; margin:10px 0; cursor:zoom-in;" /></a>
+	<a href="/images/marketplace/storelinkr_wordpress.jpg" rel="shadowbox[hikashop]"><img src="/images/marketplace/storelinkr_wordpress.jpg" alt="The connector's settings on WordPress, under Settings, StoreLinkr" style="max-width:100%; margin:10px 0; cursor:zoom-in;" /></a>
+</div>
+<div id="product_use"><span class="blue_title">Use</span>
+	<ul>
+		<li>Requires HikaShop, any edition, on Joomla 4, 5 or 6, or on WordPress 6.5 or newer</li>
+		<li>Requires PHP 7.4 minimum</li>
+		<li>Requires a StoreLinkr account</li>
+		<li>Free</li>
+		<li>No limit of time</li>
+		<li>No limit of use</li>
+	</ul>
+</div>
+<div id="changelog"><span class="blue_title">Changelog</span>
+	<p>The changes of each version are listed on its <a href="https://github.com/hikashop-nicolas/hikashop-storelinkr/releases" target="_blank" rel="noopener">release page</a>.</p>
+</div>
+</div>
