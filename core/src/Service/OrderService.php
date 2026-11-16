@@ -147,13 +147,14 @@ class OrderService extends Service {
 	}
 
 	public function createOrder(array $data) {
-		$billingId = $this->saveAddress($data, 'billing');
-		$shippingId = $this->saveAddress($data, 'shipping');
+		$userId = $this->customerId(isset($data['mail_address']) ? $data['mail_address'] : '');
+		$billingId = $this->saveAddress($data, 'billing', $userId);
+		$shippingId = $this->saveAddress($data, 'shipping', $userId);
 
 		$order = new \stdClass();
 		$order->order_type = 'sale';
 		$order->order_status = (string) $this->params->get('imported_order_status', 'created');
-		$order->order_user_id = 0;
+		$order->order_user_id = $userId;
 		$order->order_billing_address_id = $billingId;
 		$order->order_shipping_address_id = $shippingId;
 		$order->order_currency_id = $this->resolveCurrency(isset($data['currency']) ? $data['currency'] : '');
@@ -207,11 +208,11 @@ class OrderService extends Service {
 	 * ownership/VAT validation that rejects guest import addresses, so for an
 	 * imported order we write the row ourselves.
 	 */
-	private function saveAddress(array $data, $type) {
+	private function saveAddress(array $data, $type, $userId = 0) {
 		$prefix = ($type === 'billing') ? 'billing_' : 'shipping_';
 		$address = new \stdClass();
 		$address->address_type = $type;
-		$address->address_user_id = 0;
+		$address->address_user_id = (int) $userId;
 		$address->address_firstname = isset($data['first_name']) ? (string)$data['first_name'] : '';
 		$address->address_lastname = isset($data['last_name']) ? (string)$data['last_name'] : '';
 		$address->address_company = isset($data['company_name']) ? (string)$data['company_name'] : '';
@@ -230,6 +231,26 @@ class OrderService extends Service {
 		$db = $this->db();
 		$db->insertObject(hikashop_table('address'), $address, 'address_id');
 		return (int) $db->insertid();
+	}
+
+	/**
+	 * The HikaShop customer of an email address: the existing one, else a guest customer
+	 * (no site account), as a checkout without registration makes. 0 without an address.
+	 */
+	private function customerId($email) {
+		$email = trim((string) $email);
+		if($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			return 0;
+		}
+		$userClass = hikashop_get('class.user');
+		$user = $userClass->get($email, 'email');
+		if(!empty($user->user_id)) {
+			return (int) $user->user_id;
+		}
+		$user = new \stdClass();
+		$user->user_email = $email;
+		$user->user_cms_id = 0;
+		return (int) $userClass->save($user);
 	}
 
 	private function loadAddress($id) {

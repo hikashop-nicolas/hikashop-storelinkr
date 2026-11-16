@@ -167,6 +167,7 @@ foreach ((array) $j['orders'] as $o) {
 	}
 }
 ok('read it back, with its line and address', $order && $order['order_lines'][0]['sku'] === "SMK-$run" && $order['order_lines'][0]['quantity'] === 2 && $order['customer']['shippingAddress']['country'] === 'FR' && $order['currency'] === 'EUR', $order);
+ok('with its customer\'s email', $order && $order['customer']['email'] === "ada.$run@example.test", $order ? $order['customer'] : null);
 
 echo "removal\n";
 list($s, $j, $raw) = call('POST', 'products/offline', array('gtins' => array('872' . str_pad($run, 10, '0', STR_PAD_LEFT), '0000000000000')));
