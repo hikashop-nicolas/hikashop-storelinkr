@@ -97,6 +97,10 @@ $prod = array('name' => "Smoke mug $run", 'ean' => $ean, 'sku' => "SMK-$run", 's
 list($s, $j, $raw) = call('POST', 'products/create', $prod);
 $pid = isset($j['product_id']) ? (int) $j['product_id'] : 0;
 ok('create a product', $s === 200 && $pid > 0 && $j['type'] === 'main' && $j['url'] !== '', $raw);
+$page = curl_init($j['url'] ?? '');
+curl_setopt_array($page, array(CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 60));
+$html = (string) curl_exec($page);
+ok('its url opens its page in the shop', curl_getinfo($page, CURLINFO_RESPONSE_CODE) === 200 && strpos($html, "Smoke mug $run") !== false, $j['url'] ?? '');
 list($s, $j, $raw) = call('POST', 'products/create', $prod);
 ok('the same EAN and SKU give the same product', isset($j['product_id']) && (int) $j['product_id'] === $pid, $raw);
 $prod['id']         = $pid;

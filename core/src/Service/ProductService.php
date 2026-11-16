@@ -370,13 +370,31 @@ class ProductService extends Service {
 		return $base . '/' . $folder . '/' . ltrim($path, '/');
 	}
 
+	/** The product's page in the shop, as HikaShop links it (its routed address on either platform). */
 	public function productUrl($product) {
-		$base = defined('HIKASHOP_LIVE') ? rtrim(HIKASHOP_LIVE, '/') : '';
-		$url = $base . '/index.php?option=com_hikashop&ctrl=product&task=show&cid=' . (int)$product->product_id;
-		if(!empty($product->product_alias)) {
-			$url .= '&name=' . rawurlencode($product->product_alias);
+		$alias = !empty($product->product_alias) ? $product->product_alias : '';
+		if(function_exists('hikashop_contentLink')) {
+			$productClass = hikashop_get('class.product');
+			if(method_exists($productClass, 'addAlias')) {
+				$productClass->addAlias($product);
+				$alias = isset($product->alias) ? $product->alias : $alias;
+			}
+			return self::absolute(hikashop_contentLink('product&task=show&cid=' . (int)$product->product_id . '&name=' . $alias, $product));
 		}
-		return $url;
+		return self::absolute('index.php?option=com_hikashop&ctrl=product&task=show&cid=' . (int)$product->product_id . ($alias !== '' ? '&name=' . rawurlencode($alias) : ''));
+	}
+
+	/** An address made absolute on the shop's base, the way StoreLinkr wants it. */
+	public static function absolute($url) {
+		$url = str_replace('&amp;', '&', (string)$url);
+		if(preg_match('#^https?://#i', $url)) {
+			return $url;
+		}
+		$base = defined('HIKASHOP_LIVE') ? (string)HIKASHOP_LIVE : '';
+		if($url !== '' && $url[0] === '/' && preg_match('#^(https?://[^/]+)#i', $base, $m)) {
+			return $m[1] . $url;
+		}
+		return rtrim($base, '/') . '/' . ltrim($url, '/');
 	}
 
 	// ── Listing ──────────────────────────────────────────────────────────

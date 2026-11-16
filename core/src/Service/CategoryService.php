@@ -204,11 +204,10 @@ class CategoryService extends Service {
 	}
 
 	private function categoryUrl($id, $alias = '') {
-		$base = defined('HIKASHOP_LIVE') ? HIKASHOP_LIVE : '';
-		$url = rtrim($base, '/') . '/index.php?option=com_hikashop&ctrl=category&task=listing&cid=' . (int)$id;
-		if(!empty($alias)) {
-			$url .= '&name=' . rawurlencode($alias);
+		if(function_exists('hikashop_contentLink')) {
+			$category = (object) array('category_id' => (int)$id, 'category_alias' => (string)$alias);
+			return ProductService::absolute(hikashop_contentLink('category&task=listing&cid=' . (int)$id . '&name=' . $alias, $category));
 		}
-		return $url;
+		return ProductService::absolute('index.php?option=com_hikashop&ctrl=category&task=listing&cid=' . (int)$id . (!empty($alias) ? '&name=' . rawurlencode($alias) : ''));
 	}
 }
