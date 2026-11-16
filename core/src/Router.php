@@ -32,6 +32,8 @@ class Router {
 			array( 'POST', '#^products/(\d+)/image$#', 'Products', 'image' ),
 			array( 'POST', '#^products/(\d+)/archive$#', 'Products', 'archive' ),
 			array( 'POST', '#^images/create$#', 'Images', 'create' ),
+			// StoreLinkr's HikaShop integration uploads an image there (form fields cdn_url and alt), then names it in products/{id}/update.
+			array( 'POST', '#^products/push-image$#', 'Images', 'create' ),
 			array( 'POST', '#^stock-locations/create$#', 'StockLocations', 'create' ),
 			array( 'PUT', '#^stock-locations/(\d+)/update$#', 'StockLocations', 'update' ),
 		);

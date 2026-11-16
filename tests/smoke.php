@@ -84,6 +84,13 @@ ok('an image sent as base64', $s === 200 && $img1 > 0 && $j['image_url'] !== '',
 list($s, $j, $raw) = call('POST', 'images/create', array('alt' => "Logo $run", 'cdn_url' => 'https://raw.githubusercontent.com/hikashop-nicolas/freescout-hikashop/main/marketplace/logo_freescout.png'));
 $img2 = isset($j['image_id']) ? (int) $j['image_id'] : 0;
 ok('an image downloaded from its address', $s === 200 && $img2 > 0, $raw);
+$ch = curl_init($base . '/products/push-image');
+curl_setopt_array($ch, array(CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 60,
+	CURLOPT_HTTPHEADER => array('X-Api-Key: ' . $key, 'X-Api-Secret: ' . $secret),
+	CURLOPT_POSTFIELDS => http_build_query(array('cdn_url' => 'https://raw.githubusercontent.com/hikashop-nicolas/freescout-hikashop/main/marketplace/logo_freescout.png', 'alt' => "Pushed $run"))));
+$raw = (string) curl_exec($ch);
+$j = json_decode($raw, true);
+ok('an image pushed as a form to products/push-image (StoreLinkr\'s HikaShop integration)', curl_getinfo($ch, CURLINFO_RESPONSE_CODE) === 200 && !empty($j['image_id']), $raw);
 list($s, $j, $raw) = call('POST', 'images/create', array('alt' => 'local', 'cdn_url' => 'http://127.0.0.1/x.png'));
 ok('a local address is refused', $s === 400, $raw);
 list($s, $j, $raw) = call('POST', 'images/create', array('alt' => 'html', 'imageContent' => base64_encode('<html>not an image</html>')));
