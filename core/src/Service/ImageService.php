@@ -40,7 +40,13 @@ class ImageService extends Service {
 			return $this->download($cdnUrl);
 		}
 		if(!empty($imageContent)) {
-			$decoded = base64_decode($imageContent, true); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- StoreLinkr sends image bytes as base64.
+			// StoreLinkr sends the bytes as base64. sodium_compat ships with both
+			// WordPress and Joomla, so this works without the sodium extension too.
+			try {
+				$decoded = sodium_base642bin(preg_replace('/\\s+/', '', (string)$imageContent), SODIUM_BASE64_VARIANT_ORIGINAL);
+			} catch (\Throwable $e) {
+				$decoded = false;
+			}
 			if($decoded === false || $decoded === '') {
 				throw ApiError::because('Empty or invalid image content!');
 			}
@@ -50,7 +56,7 @@ class ImageService extends Service {
 	}
 
 	private function download($url) {
-		$this->assertSafeUrl($url);
+		$this->checkSafeUrl($url);
 		list($code, $bytes) = $this->platform->httpGet($url, array('Accept' => 'image/webp,image/apng,image/*,*/*;q=0.8'), 20);
 		if($code < 200 || $code >= 300 || $bytes === '') {
 			throw ApiError::because('Image download failed for url ' . $url);
@@ -62,7 +68,7 @@ class ImageService extends Service {
 	}
 
 	/** Reject non-http(s) schemes, private/loopback hosts, and off-allowlist hosts. */
-	private function assertSafeUrl($url) {
+	private function checkSafeUrl($url) {
 		$parts = $this->platform->parseUrl($url);
 		if(empty($parts['scheme']) || !in_array(strtolower($parts['scheme']), array('http', 'https'), true)) {
 			throw ApiError::because('Only http(s) image urls are allowed');
@@ -105,21 +111,22 @@ class ImageService extends Service {
 		return $filename;
 	}
 
+	/** The image type, from the file's first bytes. */
 	private function detectExtension($bytes) {
-		$head = substr($bytes, 0, 16);
-		if(strncmp($head, "\xFF\xD8\xFF", 3) === 0) {
+		$head = bin2hex(substr($bytes, 0, 12));
+		if(strpos($head, 'ffd8ff') === 0) {
 			return 'jpg';
 		}
-		if(strncmp($head, "\x89PNG", 4) === 0) {
+		if(strpos($head, '89504e47') === 0) {
 			return 'png';
 		}
-		if(strncmp($head, 'GIF8', 4) === 0) {
+		if(strpos($head, '47494638') === 0) {
 			return 'gif';
 		}
-		if(strncmp($head, 'RIFF', 4) === 0 && substr($head, 8, 4) === 'WEBP') {
+		if(strpos($head, '52494646') === 0 && substr($head, 16, 8) === '57454250') {
 			return 'webp';
 		}
-		throw ApiError::because('Unsupported image format');
+		throw ApiError::because('Image content is not a valid image!');
 	}
 
 	private function createFileRecord($filename, $refId, $alt) {

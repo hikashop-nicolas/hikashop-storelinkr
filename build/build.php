@@ -74,6 +74,12 @@ function guarded($php, $guard, $name) {
 	return substr($php, 0, $after) . "\n\n" . $guard . "\n" . substr($php, $after);
 }
 
+/** Every PHP file names its licence (JEDChecker's GPL rule). */
+function licensed($php, $version) {
+	$notice = "/**\n * @package   HikaShop StoreLinkr Connector\n * @version   $version\n * @copyright (C) 2026 Hikari Software\n * @license   GNU General Public License version 2 or later; see LICENSE.txt\n */\n";
+	return preg_replace('/^<\?php\s*\n/', "<?php\n" . $notice, $php, 1);
+}
+
 function files($dir) {
 	$out = array();
 	$it  = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS));
@@ -103,6 +109,7 @@ foreach ($builds as $name => $b) {
 			$body = file_get_contents($file);
 			$body = str_replace(array('{__VERSION__}', '{__DATE__}'), array($version, $date), $body);
 			if (substr($file, -4) === '.php') {
+				$body = licensed($body, $version);
 				$body = guarded($body, $b['guard'], $file);
 			}
 			$zip->addFromString($path, $body);

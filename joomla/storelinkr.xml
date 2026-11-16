@@ -4,7 +4,8 @@
 	<author>Hikari Software</author>
 	<creationDate>{__DATE__}</creationDate>
 	<copyright>(C) 2026 Hikari Software. All rights reserved.</copyright>
-	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<license>GNU/GPL version 2 or later; see LICENSE.txt</license>
+	<licence>GNU/GPL version 2 or later; see LICENSE.txt</licence>
 	<authorEmail>dev@hikashop.com</authorEmail>
 	<authorUrl>https://www.hikashop.com</authorUrl>
 	<version>{__VERSION__}</version>
