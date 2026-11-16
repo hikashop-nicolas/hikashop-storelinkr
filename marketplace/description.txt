@@ -24,7 +24,7 @@
 </div>
 <div id="product_use"><span class="blue_title">Use</span>
 	<ul>
-		<li>Requires HikaShop, any edition, on Joomla 4, 5 or 6, or on WordPress 6.5 or newer</li>
+		<li>Requires HikaShop, on Joomla 4, 5 or 6, or on WordPress 6.5 or newer</li>
 		<li>Requires PHP 7.4 minimum</li>
 		<li>Requires a StoreLinkr account</li>
 		<li>Free</li>
