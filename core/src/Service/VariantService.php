@@ -5,6 +5,7 @@ use HikashopStorelinkr\Service;
 use HikashopStorelinkr\ApiError;
 use HikashopStorelinkr\Schema;
 use HikashopStorelinkr\ProductMapper;
+use HikashopStorelinkr\ProductExtras;
 
 /**
  * Maps StoreLinkr variable products onto HikaShop's characteristic/variant
@@ -66,6 +67,7 @@ class VariantService extends Service {
 
 		// 2) Main product.
 		$main = new \stdClass();
+		$existing = null;
 		if($mainId > 0) {
 			$existing = $this->productService()->findById($mainId);
 			if($existing) {
@@ -102,7 +104,10 @@ class VariantService extends Service {
 		}
 		if(empty($main->product_id)) {
 			$main->product_published = $publishNew ? 1 : 0;
+		} else {
+			ProductExtras::restoreIfTakenOffline($main, $existing);
 		}
+		ProductExtras::apply($this->db(), $main, $variantInfo);
 
 		// Axis objects for the main product.
 		$ord = 0;
@@ -189,6 +194,15 @@ class VariantService extends Service {
 			$child->{Schema::COL_UUID} = (string)$variation['uuid'];
 		}
 		$child->{Schema::COL_SOURCE} = $this->importSource();
+		ProductExtras::apply($this->db(), $child, $variation);
+		if($existing) {
+			ProductExtras::restoreIfTakenOffline($child, $existing);
+		} else {
+			$child->product_published = 1;
+		}
+		if(isset($variation['images'])) {
+			$this->productService()->setImages($child, (array)$variation['images']);
+		}
 
 		if(ProductMapper::shouldUpdateStock($variation, $settings)) {
 			$child->product_quantity = ProductMapper::computeQuantity($variation);
@@ -214,6 +228,10 @@ class VariantService extends Service {
 		}
 		if(isset($child->prices)) {
 			$productClass->updatePrices($child, $childId);
+		}
+		if(isset($child->images)) {
+			$this->productService()->claimImages($child, $childId);
+			$productClass->updateFiles($child, $childId, 'images', $child->imagesorder);
 		}
 		$productClass->updateCharacteristics($child, $childId);
 

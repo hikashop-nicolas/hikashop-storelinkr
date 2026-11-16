@@ -163,15 +163,9 @@ class Products extends Controller {
 		return (bool) $this->params->get('publish_new_products', 1);
 	}
 
+	/** The images StoreLinkr named that are gone or broken: it uploads them again. */
 	private function invalidMedia(array $ids) {
-		$invalid = array();
-		$db = $this->db();
-		foreach($ids as $id) {
-			$db->setQuery('SELECT file_id FROM ' . hikashop_table('file') . ' WHERE file_id = ' . (int)$id);
-			if(!$db->loadResult()) {
-				$invalid[] = $id;
-			}
-		}
-		return $invalid;
+		$valid = $this->service('ProductService')->validImageIds($ids);
+		return array_values(array_diff(array_map('intval', $ids), $valid));
 	}
 }

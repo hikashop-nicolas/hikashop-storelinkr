@@ -181,5 +181,27 @@ foreach ((array) $j['products'] as $p) {
 }
 ok('archived products leave the listing', !in_array($pid, $ids, true), $ids);
 
+echo "sent again\n";
+$bulkA = array('name' => "Bulk A $run", 'ean' => '872' . str_pad($run, 10, '0', STR_PAD_LEFT), 'sku' => "BLK-A-$run", 'site' => 'default', 'importSource' => 'storelinkr',
+	'salesPrice' => 500, 'inStock' => 1, 'stockSupplier' => 0, 'hasStock' => true, 'condition' => 'refurbished', 'conditionDescription' => 'Tested and cleaned',
+	'metafields' => array(array('name' => 'OE number', 'type' => 'single_text', 'value' => 'OE-' . $run)));
+list($s, $j, $raw) = call('POST', 'products/create', $bulkA);
+$back = isset($j['product_id']) ? (int) $j['product_id'] : 0;
+list($s, $j) = call('GET', 'products?page=1');
+if (!empty($j['total_pages']) && $j['total_pages'] > 1) {
+	list($s, $j) = call('GET', 'products?page=' . $j['total_pages']);
+}
+$ids = array();
+foreach ((array) $j['products'] as $p) {
+	$ids[] = (int) $p['id'];
+}
+ok('a product taken offline comes back when StoreLinkr sends it again', $back > 0 && in_array($back, $ids, true), $raw);
+$prod['images'] = array(999999998, $img1);
+list($s, $j, $raw) = call('POST', "products/$pid/update", $prod);
+ok('a missing main image keeps the current images, and is reported', $s === 200 && in_array(999999998, $j['invalid_media'], true) && !empty($j['warnings']), $raw);
+$variable['products'][0]['images'] = array($img2);
+list($s, $j, $raw) = call('POST', "products/$vid/update-variant", $variable);
+ok('a variant gets its own image', $s === 200 && count($j['variant_map']) === 3, $raw);
+
 echo "\n$passed passed, $failed failed\n";
 exit($failed ? 1 : 0);

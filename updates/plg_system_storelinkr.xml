@@ -12,7 +12,7 @@
 		<downloads>
 			<downloadurl type="full" format="zip">https://github.com/hikashop-nicolas/hikashop-storelinkr/releases/download/v1.1.0/plg_system_storelinkr.zip</downloadurl>
 		</downloads>
-		<sha256>9f86e294e8618480e5dcd7672e3e8d72dc6e407f113b57b8b0b1b1860bfdf322</sha256>
+		<sha256>31b4e56ed05a58d45dce482f75d9fec6eedc84ecef600845423d6e5675ee86cb</sha256>
 		<tags>
 			<tag>stable</tag>
 		</tags>

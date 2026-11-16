@@ -2,9 +2,10 @@
 namespace HikashopStorelinkr;
 
 /**
- * Lazily ensures the product columns StoreLinkr needs for matching exist.
- * HikaShop has no native EAN/UUID column, so we add our own (indexed EAN for
- * fast lookups). Setting these scalar properties on a product object persists
+ * Lazily ensures the product columns StoreLinkr needs exist. HikaShop has no
+ * native EAN/UUID column, so we add our own (indexed EAN for fast lookups),
+ * plus the PIM condition, the metafields, and a flag on the products the
+ * connector itself took offline. Setting these scalar properties on a product object persists
  * them through hikashopClass::save(), which only writes real table columns.
  * Idempotent: ALTER errors (column already present) are swallowed.
  */
@@ -13,6 +14,10 @@ class Schema {
 	const COL_EAN = 'storelinkr_ean';
 	const COL_UUID = 'storelinkr_uuid';
 	const COL_SOURCE = 'storelinkr_source';
+	const COL_CONDITION = 'storelinkr_condition';
+	const COL_CONDITION_DESCRIPTION = 'storelinkr_condition_description';
+	const COL_METAFIELDS = 'storelinkr_metafields';
+	const COL_OFFLINE = 'storelinkr_offline';
 
 	private static $ensured = false;
 
@@ -37,6 +42,10 @@ class Schema {
 			self::COL_EAN => 'VARCHAR(64) NULL',
 			self::COL_UUID => 'VARCHAR(191) NULL',
 			self::COL_SOURCE => 'VARCHAR(64) NULL',
+			self::COL_CONDITION => 'VARCHAR(64) NULL',
+			self::COL_CONDITION_DESCRIPTION => 'TEXT NULL',
+			self::COL_METAFIELDS => 'MEDIUMTEXT NULL',
+			self::COL_OFFLINE => 'TINYINT(1) NULL',
 		);
 		foreach($columns as $name => $definition) {
 			if(isset($existing[strtolower($name)])) {

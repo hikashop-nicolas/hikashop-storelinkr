@@ -5,6 +5,7 @@ use HikashopStorelinkr\Service;
 use HikashopStorelinkr\ApiError;
 use HikashopStorelinkr\Schema;
 use HikashopStorelinkr\ProductMapper;
+use HikashopStorelinkr\ProductExtras;
 
 /**
  * Maps StoreLinkr products onto HikaShop products. Matching follows id -> sku
@@ -110,17 +111,13 @@ class ProductService extends Service {
 
 		if($isNew) {
 			$element->product_published = $publishNew ? 1 : 0;
+		} else {
+			ProductExtras::restoreIfTakenOffline($element, $existing);
 		}
 
 		$overwriteImages = !isset($settings['overwrite_images']) || (bool)$settings['overwrite_images'];
 		if($overwriteImages && isset($data['images'])) {
-			$ids = $this->validImageIds((array)$data['images']);
-			$element->images = $ids;
-			$order = array();
-			foreach(array_values($ids) as $i => $fid) {
-				$order[$fid] = $i;
-			}
-			$element->imagesorder = $order;
+			$this->setImages($element, (array)$data['images']);
 		}
 
 		return $this->saveElement($element, $isNew);
@@ -163,9 +160,7 @@ class ProductService extends Service {
 			$element->product_description = $short;
 		}
 
-		if(isset($data['isUsed'])) {
-			$element->product_condition = ((int)$data['isUsed'] === 1) ? 'used' : 'new';
-		}
+		ProductExtras::apply($this->db(), $element, $data);
 
 		if(ProductMapper::shouldUpdatePrice($data, $settings)) {
 			$this->applyPrices($element, $data);
@@ -209,15 +204,75 @@ class ProductService extends Service {
 		return null;
 	}
 
-	private function validImageIds(array $ids) {
+	/**
+	 * The images of a product, in StoreLinkr's order, the first one its main image.
+	 * When that first image is gone, the product keeps its current images rather
+	 * than promote the next one (often a dimension drawing): StoreLinkr sees it
+	 * in invalid_media and uploads it again.
+	 */
+	public function setImages($element, array $sent) {
+		$sent = array_values(array_filter(array_map('intval', $sent), function($v){ return $v > 0; }));
+		$ids = $this->validImageIds($sent);
+		if(!empty($sent) && (empty($ids) || $ids[0] !== $sent[0])) {
+			$this->logWarning('The main image ' . $sent[0] . ' no longer exists: the current images are kept until it is sent again');
+			return;
+		}
+		$element->images = $ids;
+		$order = array();
+		foreach($ids as $i => $fid) {
+			$order[$fid] = $i;
+		}
+		$element->imagesorder = $order;
+	}
+
+	/**
+	 * A HikaShop image belongs to one product: one StoreLinkr also sends for
+	 * another product (a variant showing its parent's photo) gets a record of its
+	 * own for this one, pointing at the same file.
+	 */
+	public function claimImages($element, $productId) {
+		if(empty($element->images)) {
+			return;
+		}
+		$db = $this->db();
+		$db->setQuery('SELECT * FROM ' . hikashop_table('file') . ' WHERE file_id IN (' . implode(',', array_map('intval', $element->images)) . ')');
+		$rows = (array)$db->loadObjectList('file_id');
+		$ids = array();
+		$order = array();
+		foreach($element->images as $i => $id) {
+			$row = isset($rows[$id]) ? $rows[$id] : null;
+			if($row && (int)$row->file_ref_id !== 0 && (int)$row->file_ref_id !== (int)$productId) {
+				$copy = clone $row;
+				unset($copy->file_id);
+				$copy->file_ref_id = (int)$productId;
+				$db->insertObject(hikashop_table('file'), $copy, 'file_id');
+				$id = (int)$db->insertid();
+			}
+			$ids[] = (int)$id;
+			$order[(int)$id] = $i;
+		}
+		$element->images = $ids;
+		$element->imagesorder = $order;
+	}
+
+	/** Image ids that exist with a real image file, in the order given. */
+	public function validImageIds(array $ids) {
 		$ids = array_values(array_unique(array_map('intval', $ids)));
 		$ids = array_filter($ids, function($v){ return $v > 0; });
 		if(empty($ids)) {
 			return array();
 		}
 		$db = $this->db();
-		$db->setQuery('SELECT file_id FROM ' . hikashop_table('file') . ' WHERE file_id IN (' . implode(',', $ids) . ')');
-		$valid = array_map('intval', (array)$db->loadColumn());
+		$db->setQuery('SELECT file_id, file_path FROM ' . hikashop_table('file') . ' WHERE file_id IN (' . implode(',', $ids) . ')');
+		$folder = hikashop_get('class.file')->getPath('product');
+		$valid = array();
+		foreach((array)$db->loadObjectList() as $row) {
+			$path = $folder . $row->file_path;
+			// A missing or broken file counts as gone, so StoreLinkr sends it again.
+			if(is_file($path) && getimagesize($path) !== false) {
+				$valid[] = (int)$row->file_id;
+			}
+		}
 		// Preserve the order StoreLinkr sent.
 		return array_values(array_intersect($ids, $valid));
 	}
@@ -239,6 +294,7 @@ class ProductService extends Service {
 			$productClass->updatePrices($element, $pid);
 		}
 		if(isset($element->images)) {
+			$this->claimImages($element, $pid);
 			$productClass->updateFiles($element, $pid, 'images', isset($element->imagesorder) ? $element->imagesorder : null);
 		}
 		if(isset($element->characteristics)) {
@@ -250,10 +306,13 @@ class ProductService extends Service {
 		return $pid;
 	}
 
+	/** Publish or take offline; offline is flagged so a later sync of it brings it back. */
 	public function setPublished($productId, $published) {
+		Schema::ensure($this->db());
 		$element = new \stdClass();
 		$element->product_id = (int) $productId;
 		$element->product_published = $published ? 1 : 0;
+		$element->{Schema::COL_OFFLINE} = $published ? 0 : 1;
 		$productClass = hikashop_get('class.product');
 		return (bool) $productClass->save($element);
 	}
