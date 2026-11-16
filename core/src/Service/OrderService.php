@@ -35,7 +35,11 @@ class OrderService extends Service {
 
 		$out = array();
 		foreach($orders as $order) {
-			$out[] = $this->formatOrder($order);
+			$formatted = $this->formatOrder($order);
+			// As the WooCommerce connector: an order with no line of an existing product is left out.
+			if($formatted !== null) {
+				$out[] = $formatted;
+			}
 		}
 		return $out;
 	}
@@ -46,9 +50,18 @@ class OrderService extends Service {
 		$currency = $this->currencyCode($order->order_currency_id);
 
 		$lines = array();
+		$subtotal = 0;
 		$db = $this->db();
 		$db->setQuery('SELECT * FROM ' . hikashop_table('order_product') . ' WHERE order_id = ' . (int)$order->order_id);
 		foreach((array)$db->loadObjectList() as $item) {
+			$product = (int)$item->product_id > 0 ? $this->productService()->findById($item->product_id) : null;
+			if(!$product) {
+				continue;
+			}
+			$quantity = max(1, (int) $item->order_product_quantity);
+			$price = (int) round((float)$item->order_product_price * 100);
+			$priceVat = (int) round(((float)$item->order_product_price + (float)$item->order_product_tax) * 100);
+			$subtotal += $price * $quantity;
 			$lines[] = array(
 				'item_id' => (int) $item->order_product_id,
 				'product_id' => (int) $item->product_id,
@@ -56,10 +69,19 @@ class OrderService extends Service {
 				'sku' => (string) $item->order_product_code,
 				'name' => (string) $item->order_product_name,
 				'quantity' => (int) $item->order_product_quantity,
-				'price' => (int) round((float)$item->order_product_price * 100),
-				'price_incl_vat' => (int) round(((float)$item->order_product_price + (float)$item->order_product_tax) * 100),
+				'price' => $price,
+				'price_incl_vat' => $priceVat,
+				'subtotal' => $price * $quantity,
+				'subtotal_incl_vat' => $priceVat * $quantity,
+				'item_metadata' => array(),
+				'product_metadata' => array(),
+				'product_image' => $this->productImage($product),
 			);
 		}
+		if(empty($lines)) {
+			return null;
+		}
+		$email = $this->orderEmail($order->order_user_id);
 
 		return array(
 			'order_id' => (int) $order->order_id,
@@ -69,19 +91,42 @@ class OrderService extends Service {
 			'customer' => array(
 				'first_name' => $billing ? (string)$billing->address_firstname : '',
 				'last_name' => $billing ? (string)$billing->address_lastname : '',
-				'email' => $this->orderEmail($order->order_user_id),
+				'email' => $email,
 				'company_name' => $billing ? (string)$billing->address_company : '',
-				'billingAddress' => $this->addressShape($billing),
+				'billingAddress' => array_merge($this->addressShape($billing), array('email' => $email)),
 				'shippingAddress' => $this->addressShape($shipping),
 			),
 			'order_lines' => $lines,
 			'currency' => $currency,
+			'total_amount_cents' => $subtotal,
 			'grand_total_cents' => (int) round((float)$order->order_full_price * 100),
 			'shipping_costs_cents' => (int) round((float)$order->order_shipping_price * 100),
 			'discount_cents' => (int) round((float)$order->order_discount_price * 100),
-			'payment_status' => (string) $order->order_status,
-			'deliver_method' => $this->shippingName($order),
+			'ip_address' => isset($order->order_ip) ? (string) $order->order_ip : '',
+			'payment_status' => $this->isPaid($order->order_status) ? 'paid' : 'unpaid',
+			'deliver_method' => $this->deliverMethod($order),
+			'customer_notes' => '',
 		);
+	}
+
+	/** The shipping method's name, 'default' without one, as the WooCommerce connector says. */
+	private function deliverMethod($order) {
+		$name = $this->shippingName($order);
+		return ($name === '' || strtoupper($name) === 'NONE') ? 'default' : $name;
+	}
+
+	/** Paid: one of the statuses HikaShop makes an invoice for (confirmed and shipped by default). */
+	private function isPaid($status) {
+		$paid = array_filter(array_map('trim', explode(',', (string) hikashop_config()->get('invoice_order_statuses', 'confirmed,shipped'))));
+		return in_array((string) $status, $paid, true);
+	}
+
+	/** The address of a product's main image, '' without one. */
+	private function productImage($product) {
+		$db = $this->db();
+		$db->setQuery('SELECT file_id FROM ' . hikashop_table('file') . ' WHERE file_ref_id = ' . (int)$product->product_id . " AND file_type = 'product' ORDER BY file_ordering ASC, file_id ASC", 0, 1);
+		$id = (int) $db->loadResult();
+		return $id ? $this->productService()->fileUrlById($id) : '';
 	}
 
 	private function addressShape($address) {
