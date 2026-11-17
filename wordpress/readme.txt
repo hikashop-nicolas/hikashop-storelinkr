@@ -34,6 +34,8 @@ A Joomla version of the same connector is available too. The source code is on [
 4. In StoreLinkr, add a HikaShop integration with your site's address as its domain, and the same API key and API secret.
 5. Use StoreLinkr's "Test connection".
 
+StoreLinkr's [HikaShop setup guide](https://help.storelinkr.com/docs/integrations/hikashop/setup) shows each step on its side.
+
 == Frequently Asked Questions ==
 
 = Which address does StoreLinkr call? =

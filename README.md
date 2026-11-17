@@ -32,7 +32,8 @@ In StoreLinkr, add a **HikaShop** integration with:
 - **Domain**: your site's address, for example `https://www.example.com`
 - **API key** and **API secret**: the ones of the connector's settings
 
-then use StoreLinkr's "Test connection". StoreLinkr calls `https://<site>/storelinkr/v1/...`
+then use StoreLinkr's "Test connection". StoreLinkr's
+[HikaShop setup guide](https://help.storelinkr.com/docs/integrations/hikashop/setup) shows each step on its side. StoreLinkr calls `https://<site>/storelinkr/v1/...`
 (on WordPress also `https://<site>/wp-json/storelinkr/v1/...`). On Joomla without URL
 rewriting, the address is `https://<site>/index.php/storelinkr/v1/...`.
 

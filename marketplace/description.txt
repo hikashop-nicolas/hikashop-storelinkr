@@ -26,11 +26,14 @@
 	<ul>
 		<li>Requires HikaShop, on Joomla 4, 5 or 6, or on WordPress 6.5 or newer</li>
 		<li>Requires PHP 7.4 minimum</li>
-		<li>Requires a StoreLinkr account</li>
+		<li>Requires a <a href="https://storelinkr.com" target="_blank" rel="noopener">StoreLinkr</a> account</li>
 		<li>Free</li>
 		<li>No limit of time</li>
 		<li>No limit of use</li>
 	</ul>
+</div>
+<div id="documentation"><span class="blue_title">Documentation</span>
+	<p>StoreLinkr's <a href="https://help.storelinkr.com/docs/integrations/hikashop/setup" target="_blank" rel="noopener">HikaShop setup guide</a> explains how to install the connector, connect it in StoreLinkr and choose the export settings. It is available in English, Dutch, German and French on <a href="https://help.storelinkr.com" target="_blank" rel="noopener">StoreLinkr's help site</a>.</p>
 </div>
 <div id="changelog"><span class="blue_title">Changelog</span>
 	<p>The changes of each version are listed on its <a href="https://github.com/hikashop-nicolas/hikashop-storelinkr/releases" target="_blank" rel="noopener">release page</a>.</p>
