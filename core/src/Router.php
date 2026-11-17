@@ -23,8 +23,6 @@ class Router {
 			array( 'POST', '#^products/create-variant$#', 'Variants', 'create' ),
 			array( 'POST', '#^products/link-variants$#', 'Variants', 'link' ),
 			array( 'POST', '#^products/upsert-bulk$#', 'Products', 'upsertBulk' ),
-			// What StoreLinkr's HikaShop integration calls for a product export: upsert-bulk's input and answer.
-			array( 'POST', '#^products/bulk$#', 'Products', 'upsertBulk' ),
 			array( 'POST', '#^products/offline$#', 'Products', 'offline' ),
 			array( 'POST', '#^products/archive/validate$#', 'Products', 'archiveValidate' ),
 			array( 'POST', '#^products/(\d+)/update-variant$#', 'Variants', 'update' ),
@@ -32,8 +30,6 @@ class Router {
 			array( 'POST', '#^products/(\d+)/image$#', 'Products', 'image' ),
 			array( 'POST', '#^products/(\d+)/archive$#', 'Products', 'archive' ),
 			array( 'POST', '#^images/create$#', 'Images', 'create' ),
-			// StoreLinkr's HikaShop integration uploads an image there (form fields cdn_url and alt), then names it in products/{id}/update.
-			array( 'POST', '#^products/push-image$#', 'Images', 'create' ),
 			array( 'POST', '#^stock-locations/create$#', 'StockLocations', 'create' ),
 			array( 'PUT', '#^stock-locations/(\d+)/update$#', 'StockLocations', 'update' ),
 		);

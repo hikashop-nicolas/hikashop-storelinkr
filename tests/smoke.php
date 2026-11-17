@@ -84,13 +84,13 @@ ok('an image sent as base64', $s === 200 && $img1 > 0 && $j['image_url'] !== '',
 list($s, $j, $raw) = call('POST', 'images/create', array('alt' => "Logo $run", 'cdn_url' => 'https://raw.githubusercontent.com/hikashop-nicolas/freescout-hikashop/main/marketplace/logo_freescout.png'));
 $img2 = isset($j['image_id']) ? (int) $j['image_id'] : 0;
 ok('an image downloaded from its address', $s === 200 && $img2 > 0, $raw);
-$ch = curl_init($base . '/products/push-image');
+$ch = curl_init($base . '/images/create');
 curl_setopt_array($ch, array(CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 60,
 	CURLOPT_HTTPHEADER => array('X-Api-Key: ' . $key, 'X-Api-Secret: ' . $secret),
-	CURLOPT_POSTFIELDS => http_build_query(array('cdn_url' => 'https://raw.githubusercontent.com/hikashop-nicolas/freescout-hikashop/main/marketplace/logo_freescout.png', 'alt' => "Pushed $run"))));
+	CURLOPT_POSTFIELDS => http_build_query(array('cdn_url' => 'https://raw.githubusercontent.com/hikashop-nicolas/freescout-hikashop/main/marketplace/logo_freescout.png', 'alt' => "Form $run"))));
 $raw = (string) curl_exec($ch);
 $j = json_decode($raw, true);
-ok('an image pushed as a form to products/push-image (StoreLinkr\'s HikaShop integration)', curl_getinfo($ch, CURLINFO_RESPONSE_CODE) === 200 && !empty($j['image_id']), $raw);
+ok('an image sent as a form', curl_getinfo($ch, CURLINFO_RESPONSE_CODE) === 200 && !empty($j['image_id']), $raw);
 list($s, $j, $raw) = call('POST', 'images/create', array('alt' => 'local', 'cdn_url' => 'http://127.0.0.1/x.png'));
 ok('a local address is refused', $s === 400, $raw);
 list($s, $j, $raw) = call('POST', 'images/create', array('alt' => 'html', 'imageContent' => base64_encode('<html>not an image</html>')));
@@ -215,19 +215,24 @@ $variable['products'][0]['images'] = array($img2);
 list($s, $j, $raw) = call('POST', "products/$vid/update-variant", $variable);
 ok('a variant gets its own image', $s === 200 && count($j['variant_map']) === 3, $raw);
 
-echo "products/bulk (StoreLinkr's HikaShop integration)\n";
+echo "products/upsert-bulk\n";
 $sent = array('uuid' => "u-$run", 'ean' => '877' . str_pad($run, 10, '0', STR_PAD_LEFT), 'sku' => "DIY-$run", 'name' => "DIY blanket $run",
 	'importSource' => 'STORELINKR', 'brand' => 'DIY', 'currency' => 'EUR', 'advisedPrice' => null, 'salesPrice' => 2495, 'promoSalesPrice' => null,
 	'images' => array(), 'isUsed' => false, 'longDescription' => '', 'metadata' => '[]', 'inStock' => 0, 'stockSupplier' => 0, 'hasStock' => false,
 	'updateStock' => true, 'id' => (string) $pid, 'site' => 'x', 'categoryId' => null,
 	'category_path' => array('main' => "Home $run", 'sub' => 'Blankets', 'subSub' => null, 'subSubSub' => null, 'subSubSubSub' => null),
 	'updatePrice' => true, 'is_variant' => false, 'variants' => array());
-list($s, $j, $raw) = call('POST', 'products/bulk', array('settings' => array('publish_new_products' => true), 'products' => array("u-$run" => $sent)));
+list($s, $j, $raw) = call('POST', 'products/upsert-bulk', array('settings' => array('publish_new_products' => true), 'products' => array("u-$run" => $sent)));
 $bulk = isset($j['products']["u-$run"]['product_id']) ? (int) $j['products']["u-$run"]['product_id'] : 0;
-ok('a product sent to products/bulk is created', $s === 200 && $bulk > 0, $raw);
+ok('a product sent to products/upsert-bulk is created', $s === 200 && $bulk > 0, $raw);
 ok('an id naming another product of the shop is not taken over', $bulk !== $pid && !empty($j['warnings']), $raw);
-list($s, $j, $raw) = call('POST', 'products/bulk', array('products' => array("u-$run" => array_merge($sent, array('id' => (string) $bulk, 'salesPrice' => 2595)))));
+list($s, $j, $raw) = call('POST', 'products/upsert-bulk', array('products' => array("u-$run" => array_merge($sent, array('id' => (string) $bulk, 'salesPrice' => 2595)))));
 ok('sent again with its own id, it is updated', isset($j['products']["u-$run"]['product_id']) && (int) $j['products']["u-$run"]['product_id'] === $bulk, $raw);
+
+list($s, $j, $raw) = call('POST', 'products/bulk', array('products' => array()));
+ok('products/bulk, outside the WooCommerce connector, is not a route', $s === 404, $raw);
+list($s, $j, $raw) = call('POST', 'products/push-image', array('alt' => 'x'));
+ok('products/push-image, outside the WooCommerce connector, is not a route', $s === 404, $raw);
 
 echo "\n$passed passed, $failed failed\n";
 exit($failed ? 1 : 0);
