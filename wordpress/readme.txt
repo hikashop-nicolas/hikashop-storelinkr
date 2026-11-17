@@ -60,6 +60,11 @@ StoreLinkr's privacy policy: https://storelinkr.com/en/legal/privacy-policy
 
 == Changelog ==
 
-= {__VERSION__} =
+= 1.1.1 =
+
+* The connector answers only the calls of StoreLinkr's WooCommerce connector, which StoreLinkr's HikaShop integration now sends: the products/bulk and products/push-image addresses it used before are gone.
+* The description links StoreLinkr's HikaShop setup guide.
+
+= 1.1.0 =
 
 * First version on wordpress.org.
