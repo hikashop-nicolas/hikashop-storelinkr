@@ -2,6 +2,17 @@
 <div id="product_features">
 	<p><b>HikaShop StoreLinkr Connector</b> is a free extension, for Joomla and for WordPress, which connects your HikaShop shop to <a href="https://storelinkr.com" target="_blank" rel="noopener">StoreLinkr</a>, the platform where you manage your product information and your sales channels. StoreLinkr sends your catalogue to the shop and keeps it up to date, reads the shop's orders, and creates the orders of your other channels in it.</p>
 
+	<span class="blue_title">Sell on marketplaces and more</span>
+	<p>With StoreLinkr, the catalogue of your HikaShop shop is also published on the marketplaces and channels you choose, with the same prices and stock everywhere, and their orders come into HikaShop:</p>
+	<ul>
+		<li><b>Marketplaces</b>: bol, Kaufland, eBay, Allegro, and more than 60 marketplaces run on Mirakl, such as MediaMarkt, Decathlon, Leroy Merlin, Carrefour, La Redoute, Conforama, Douglas and zooplus.</li>
+		<li><b>Amazon</b>: StoreLinkr's Amazon integration is in beta, available on request from the StoreLinkr team.</li>
+		<li><b>Product feeds</b>: Google Merchant Center (Google Shopping), Meta (Facebook and Instagram), TikTok and Bing.</li>
+		<li><b>Suppliers and systems</b>: supplier catalogues and stock, warehouse software such as Picqer and Stockhub, cash registers, and stock from Exact Online.</li>
+		<li><b>Prices</b>: a price list per channel, and a repricer to win the buy box on bol and Mirakl marketplaces.</li>
+	</ul>
+	<p>StoreLinkr is a paid service with a free trial, no credit card needed. See all its channels on <a href="https://storelinkr.com/en/integrations" target="_blank" rel="noopener">storelinkr.com</a>.</p>
+
 	<span class="blue_title">Features</span>
 	<ul>
 		<li>Products created and updated by StoreLinkr, matched by id, product code or EAN so nothing is duplicated.</li>

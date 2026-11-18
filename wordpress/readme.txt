@@ -22,6 +22,8 @@ Connects HikaShop to StoreLinkr: your catalogue, prices, stock and images come f
 * StoreLinkr reads your orders, and creates the orders of your other sales channels in HikaShop.
 * Stock locations become HikaShop warehouses.
 
+With StoreLinkr, your catalogue is also published on the channels you choose, with the same prices and stock, and their orders come into HikaShop: bol, Kaufland, eBay, Allegro and more than 60 Mirakl marketplaces (MediaMarkt, Decathlon, Leroy Merlin...), product feeds for Google Merchant Center, Meta, TikTok and Bing, and Amazon, in beta on request from StoreLinkr. StoreLinkr is a paid service with a free trial: see its [integrations](https://storelinkr.com/en/integrations).
+
 StoreLinkr only gets in with the API key and secret of the plugin's settings. The plugin needs [HikaShop](https://www.hikashop.com) for WordPress.
 
 A Joomla version of the same connector is available too. The source code is on [GitHub](https://github.com/hikashop-nicolas/hikashop-storelinkr).

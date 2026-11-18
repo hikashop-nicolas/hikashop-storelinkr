@@ -10,6 +10,12 @@ The connector answers StoreLinkr with the same routes, payloads and authenticati
 StoreLinkr's own [WooCommerce connector](https://github.com/sitepack-io/storelinkr-wordpress),
 so StoreLinkr's HikaShop integration works with it as it is.
 
+With StoreLinkr, the shop's catalogue is also published on the channels you choose, with the
+same prices and stock, and their orders come into HikaShop: bol, Kaufland, eBay, Allegro and
+more than 60 Mirakl marketplaces (MediaMarkt, Decathlon, Leroy Merlin...), product feeds for
+Google Merchant Center, Meta, TikTok and Bing, and Amazon, in beta on request from StoreLinkr.
+StoreLinkr is a paid service with a free trial: see its [integrations](https://storelinkr.com/en/integrations).
+
 Free, GPL-2.0-or-later.
 
 ## Install
