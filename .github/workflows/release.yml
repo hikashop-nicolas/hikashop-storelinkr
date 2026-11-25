@@ -1,10 +1,12 @@
 # A tag v<x.y.z> equal to VERSION builds both packages and publishes them as a
 # GitHub release, with the Joomla update file sites read through
-# releases/latest/download/plg_system_storelinkr.xml.
+# releases/latest/download/plg_system_storelinkr.xml. With the SVN secrets set,
+# the WordPress package and its assets also go to the wordpress.org SVN.
 name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,6 +14,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      HAS_SVN: ${{ secrets.SVN_USERNAME != '' && secrets.SVN_PASSWORD != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -25,10 +29,36 @@ jobs:
           php build/check-structure.php
           composer install --no-interaction --no-progress
           composer run-script wp-check
+      - name: Plugin Check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: dist/wp/hikashop-storelinkr
+          include-experimental: true
+          include-low-severity-errors: true
+          include-low-severity-warnings: true
+          strict: true
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1 && exit 0
           notes=$(awk -v v="$(cat VERSION)" '$0=="= " v " =" {f=1; next} /^= / {f=0} f' wordpress/readme.txt)
           gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --notes "${notes:-HikaShop StoreLinkr Connector $(cat VERSION)}" \
             dist/plg_system_storelinkr.zip dist/hikashop-storelinkr.zip dist/plg_system_storelinkr.xml dist/SHA256SUMS
+      - name: WordPress.org assets
+        if: env.HAS_SVN == 'true'
+        run: |
+          mkdir -p dist/wporg-assets
+          cp assets/*.png dist/wporg-assets/
+          cp marketplace/storelinkr_wordpress.jpg dist/wporg-assets/screenshot-1.jpg
+          echo "WP_VERSION=$(cat VERSION)" >> "$GITHUB_ENV"
+      - name: Deploy to the WordPress.org SVN
+        if: env.HAS_SVN == 'true'
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: hikashop-storelinkr
+          VERSION: ${{ env.WP_VERSION }}
+          BUILD_DIR: dist/wp/hikashop-storelinkr
+          ASSETS_DIR: dist/wporg-assets

@@ -26,3 +26,12 @@ jobs:
           composer install --no-interaction --no-progress
           composer run-script wp-check
           composer run-script php-compat
+      - name: Plugin Check on the WordPress package
+        if: matrix.php == '8.3'
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: dist/wp/hikashop-storelinkr
+          include-experimental: true
+          include-low-severity-errors: true
+          include-low-severity-warnings: true
+          strict: true
