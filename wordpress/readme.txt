@@ -2,7 +2,7 @@
 Contributors: hikarisoftware
 Tags: hikashop, storelinkr, pim, marketplaces, sync
 Requires at least: 6.5
-Tested up to: 7.1
+Tested up to: 7.2
 Requires PHP: 7.4
 Stable tag: {__VERSION__}
 License: GPLv2 or later

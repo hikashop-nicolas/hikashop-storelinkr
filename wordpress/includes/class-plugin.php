@@ -17,8 +17,8 @@ use HikashopStorelinkr\Router;
  */
 class Plugin {
 
-	const OPTION    = 'hikashop_storelinkr_settings';
-	const NAMESPACE = 'storelinkr/v1';
+	const OPTION         = 'hikashop_storelinkr_settings';
+	const REST_NAMESPACE = 'storelinkr/v1';
 
 	/** Hook the plugin into WordPress. */
 	public static function boot() {
@@ -29,7 +29,7 @@ class Plugin {
 	/** The route under storelinkr/v1; the core sorts the paths out. */
 	public static function register_route() {
 		register_rest_route(
-			self::NAMESPACE,
+			self::REST_NAMESPACE,
 			'/(?P<slr>.+)',
 			array(
 				'methods'             => array( 'GET', 'POST', 'PUT', 'PATCH', 'DELETE' ),
@@ -41,7 +41,7 @@ class Plugin {
 
 	/** /storelinkr/v1/... reaches the same route. */
 	public static function add_rewrite_rule() {
-		add_rewrite_rule( '^storelinkr/v1/(.+)$', 'index.php?rest_route=/' . self::NAMESPACE . '/$matches[1]', 'top' );
+		add_rewrite_rule( '^storelinkr/v1/(.+)$', 'index.php?rest_route=/' . self::REST_NAMESPACE . '/$matches[1]', 'top' );
 	}
 
 	/**
