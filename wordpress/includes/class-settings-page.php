@@ -88,7 +88,7 @@ class Settings_Page {
 	/** Where StoreLinkr calls. */
 	public static function connection_help() {
 		echo '<p>' . esc_html__( 'In StoreLinkr, add a HikaShop integration with this site\'s address as its domain, then enter the same API key and API secret as below.', 'hikashop-storelinkr' ) . '</p>';
-		echo '<p>' . esc_html__( 'StoreLinkr calls:', 'hikashop-storelinkr' ) . ' <code>' . esc_html( rest_url( Plugin::NAMESPACE . '/' ) ) . '</code></p>';
+		echo '<p>' . esc_html__( 'StoreLinkr calls:', 'hikashop-storelinkr' ) . ' <code>' . esc_html( rest_url( Plugin::REST_NAMESPACE . '/' ) ) . '</code></p>';
 	}
 
 	/**
