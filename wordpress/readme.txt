@@ -1,5 +1,5 @@
 === HikaShop StoreLinkr Connector ===
-Contributors: hikashop
+Contributors: hikarisoftware
 Tags: hikashop, storelinkr, pim, marketplaces, sync
 Requires at least: 6.5
 Tested up to: 7.1
@@ -48,6 +48,10 @@ https://your-site/wp-json/storelinkr/v1/ (also https://your-site/storelinkr/v1/ 
 
 No. Uninstalling removes the plugin's settings; the products, categories and orders StoreLinkr created stay in HikaShop.
 
+== Screenshots ==
+
+1. The settings page: the address StoreLinkr calls, the API key and secret to enter in StoreLinkr, and the import settings.
+
 == External services ==
 
 This plugin is the shop's side of a connection to StoreLinkr (https://storelinkr.com), a product information and sales channel platform run by Sitepack. It does not call StoreLinkr by itself: StoreLinkr calls the shop.
@@ -62,6 +66,10 @@ StoreLinkr's privacy policy: https://storelinkr.com/en/legal/privacy-policy
 
 == Changelog ==
 
+= 1.1.2 =
+
+* Ready for wordpress.org and the Joomla Extensions Directory; the connector works as in 1.1.1.
+
 = 1.1.1 =
 
 * The connector answers only the calls of StoreLinkr's WooCommerce connector, which StoreLinkr's HikaShop integration now sends: the products/bulk and products/push-image addresses it used before are gone.
@@ -69,4 +77,4 @@ StoreLinkr's privacy policy: https://storelinkr.com/en/legal/privacy-policy
 
 = 1.1.0 =
 
-* First version on wordpress.org.
+* First version.
