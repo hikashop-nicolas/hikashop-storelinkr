@@ -66,6 +66,10 @@ StoreLinkr's privacy policy: https://storelinkr.com/en/legal/privacy-policy
 
 == Changelog ==
 
+= 1.1.3 =
+
+* Ready for PHP 8.6 and tested with WordPress 7.2: on PHP 8.6, the plugin no longer adds a deprecation notice to the site's PHP log on every page.
+
 = 1.1.2 =
 
 * Ready for wordpress.org and the Joomla Extensions Directory; the connector works as in 1.1.1.
